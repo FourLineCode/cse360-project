@@ -83,7 +83,7 @@ void execute(char *command)
         return;
     }
 
-    printf("Command: %s", command);
+    printf("Command: %s", command_lowered);
     if (VERBOSE)
     {
         printf("VERBOSE\n");
