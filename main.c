@@ -12,6 +12,9 @@ char *str_lower(char *str, size_t len);
 
 bool VERBOSE = false;
 
+long double register_x = 0, register_y = 0;
+long double memory[8];
+
 int main(int argc, char **argv)
 {
     if (argc > 2 && !strcmp(argv[2], "-v"))
@@ -77,16 +80,38 @@ void read_file(char *file_path)
 void execute(char *command)
 {
     char *command_lowered = str_lower(command, strlen(command));
-    if (!strcmp(command_lowered, "exit\n"))
+
+    char command_args[3][32];
+    int arg_count = 0, j = 0;
+    for (int i = 0; i <= strlen(command_lowered); i++)
+    {
+        if (command_lowered[i] == ' ' || command_lowered[i] == '\0' || command_lowered[i] == '\n')
+        {
+            command_args[arg_count][j] = '\0';
+            if (arg_count == 2)
+            {
+                break;
+            }
+            else
+            {
+                arg_count++;
+                j = 0;
+            }
+        }
+        else
+        {
+            command_args[arg_count][j++] = command_lowered[i];
+        }
+    }
+
+    if (!strcmp(command_args[0], "exit"))
     {
         exit(EXIT_SUCCESS);
         return;
     }
-
-    printf("Command: %s", command_lowered);
-    if (VERBOSE)
+    else if (!strcmp(command_args[0], "add"))
     {
-        printf("VERBOSE\n");
+        printf("add\n");
     }
 
     free(command_lowered);
