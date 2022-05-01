@@ -49,3 +49,27 @@ STR 0x1 99
 Register X: 33 | Register Y: 17
 Memory locations: 99 1 2 3 4 5 6 3
 ```
+
+### Usage
+
+**Compile**
+
+```bash
+make
+```
+
+**Run with program file**
+
+```bash
+./main <program.asm>
+```
+
+> Replace `<program.asm>` with your assembly file
+
+**Run in interactive mode**
+
+```bash
+./main -i
+```
+
+> You can pass -v flag for verbose output
