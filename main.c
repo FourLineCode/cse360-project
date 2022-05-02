@@ -26,7 +26,9 @@ void store(char *dest, char *op);
 bool VERBOSE = false;
 bool INTERACTIVE = false;
 
+// Holds registers values (0 - X | 1 - Y)
 int registers[2] = {0, 0};
+// Holds values for memory address (0-7) (32bit)
 int memory[8] = {0, 1, 2, 3, 4, 5, 6, 7};
 
 int main(int argc, char **argv)
@@ -44,31 +46,37 @@ int main(int argc, char **argv)
         {
             read_loop();
         }
+        printf("# Result:");
         print_state();
     }
     else if (argc > 1)
     {
         read_file(argv[1]);
+        printf("# Result:");
         print_state();
     }
     else
     {
-        // TODO: print instructions
         fprintf(stderr, "Error: either pass assembly file path or pass -i for interactive mode\n");
+        printf("Usage: ./main <program.asm>\n");
+        printf("\t./main -i\n");
     }
 
     return EXIT_SUCCESS;
 }
 
+// Reads instructions from stdin
 void read_loop()
 {
     char *line = NULL;
     size_t buffer_size = 0;
+    printf("asm> ");
     getline(&line, &buffer_size, stdin);
 
     execute(line);
 }
 
+// Reads an assembly file line by line and executes
 void read_file(char *file_path)
 {
     FILE *file;
@@ -94,6 +102,7 @@ void read_file(char *file_path)
     fclose(file);
 }
 
+// Execute the given instruction string
 void execute(char *command)
 {
     char *command_lowered = str_lower(command, strlen(command));
@@ -128,6 +137,7 @@ void execute(char *command)
 
     if (!strcmp(command_args[0], "exit"))
     {
+        printf("Exited program successfully\n");
         exit(EXIT_SUCCESS);
     }
     else if (!strcmp(command_args[0], "add"))
@@ -175,6 +185,7 @@ void execute(char *command)
     free(command_lowered);
 }
 
+// Lowercase the given string
 char *str_lower(char *str, size_t len)
 {
     char *str_lowered = calloc(len + 1, sizeof(char));
@@ -187,6 +198,7 @@ char *str_lower(char *str, size_t len)
     return str_lowered;
 }
 
+// Checks if given register is a valid register type (X/Y)
 int check_register(char *reg)
 {
     if (strcmp(reg, "x") != 0 && strcmp(reg, "y") != 0)
@@ -205,6 +217,7 @@ int check_register(char *reg)
     }
 }
 
+// Fetches value from register or memory by given operand string
 int fetch_operand(char *op)
 {
     if (!strcmp(op, "x"))
@@ -226,6 +239,7 @@ int fetch_operand(char *op)
     }
 }
 
+// Print current state of cpu registers and memory
 void print_state()
 {
     printf("\nRegister X: %d | Register Y: %d\n", registers[0], registers[1]);
@@ -237,89 +251,164 @@ void print_state()
     printf("\n\n");
 }
 
+// Add value to given register
 void add(char *reg, char *op)
 {
     int reg_index = check_register(reg);
     int operand = fetch_operand(op);
 
     registers[reg_index] += operand;
+
+    if (VERBOSE || INTERACTIVE)
+    {
+        char *reg_name = reg_index == 0 ? "X" : "Y";
+        printf("\nAdded %d to register %s\n", operand, reg_name);
+        print_state();
+    }
 }
 
+// Subtract value from given register
 void sub(char *reg, char *op)
 {
     int reg_index = check_register(reg);
     int operand = fetch_operand(op);
 
     registers[reg_index] -= operand;
+
+    if (VERBOSE || INTERACTIVE)
+    {
+        char *reg_name = reg_index == 0 ? "X" : "Y";
+        printf("\nSubtracted %d from register %s\n", operand, reg_name);
+        print_state();
+    }
 }
 
+// Multiply given resiter by value
 void mul(char *reg, char *op)
 {
     int reg_index = check_register(reg);
     int operand = fetch_operand(op);
 
     registers[reg_index] *= operand;
+
+    if (VERBOSE || INTERACTIVE)
+    {
+        char *reg_name = reg_index == 0 ? "X" : "Y";
+        printf("\nMultiplied register %s by %d\n", reg_name, operand);
+        print_state();
+    }
 }
 
+// Divide given register by value
 void divide(char *reg, char *op)
 {
     int reg_index = check_register(reg);
     int operand = fetch_operand(op);
 
     registers[reg_index] /= operand;
+
+    if (VERBOSE || INTERACTIVE)
+    {
+        char *reg_name = reg_index == 0 ? "X" : "Y";
+        printf("\nDivided register %s by %d\n", reg_name, operand);
+        print_state();
+    }
 }
 
+// Bitwise AND given register by value
 void bitwise_and(char *reg, char *op)
 {
     int reg_index = check_register(reg);
     int operand = fetch_operand(op);
 
     registers[reg_index] &= operand;
+
+    if (VERBOSE || INTERACTIVE)
+    {
+        char *reg_name = reg_index == 0 ? "X" : "Y";
+        printf("\nBitwise AND register %s by %d\n", reg_name, operand);
+        print_state();
+    }
 }
 
+// Bitwise OR given register by value
 void bitwise_or(char *reg, char *op)
 {
     int reg_index = check_register(reg);
     int operand = fetch_operand(op);
 
     registers[reg_index] |= operand;
+
+    if (VERBOSE || INTERACTIVE)
+    {
+        char *reg_name = reg_index == 0 ? "X" : "Y";
+        printf("\nBitwise OR register %s by %d\n", reg_name, operand);
+        print_state();
+    }
 }
 
+// Bitwise NOT given register
 void bitwise_not(char *reg)
 {
     int reg_index = check_register(reg);
 
     registers[reg_index] = !registers[reg_index];
+
+    if (VERBOSE || INTERACTIVE)
+    {
+        char *reg_name = reg_index == 0 ? "X" : "Y";
+        printf("\nBitwise NOT register %s\n", reg_name);
+        print_state();
+    }
 }
 
+// Load value to given register
 void load(char *reg, char *op)
 {
     int reg_index = check_register(reg);
     int operand = fetch_operand(op);
 
     registers[reg_index] = operand;
+
+    if (VERBOSE || INTERACTIVE)
+    {
+        char *reg_name = reg_index == 0 ? "X" : "Y";
+        printf("\nLoaded %d to register %s\n", operand, reg_name);
+        print_state();
+    }
 }
 
+// Store value to given register or memory address
 void store(char *dest, char *op)
 {
     int operand = fetch_operand(op);
+    char *message = calloc(32, sizeof(char));
 
     if (!strcmp(dest, "x"))
     {
         registers[0] = operand;
+        message = "register X";
     }
     else if (!strcmp(dest, "y"))
     {
         registers[1] = operand;
+        message = "register Y";
     }
     else if (strlen(dest) > 2 && dest[0] == '0' && dest[1] == 'x')
     {
-        int mem_index = atoi(&op[2]);
+        int mem_index = atoi(&dest[2]);
         memory[mem_index] = operand;
+        snprintf(message, 32, "memory location %d", mem_index);
     }
     else
     {
         fprintf(stderr, "Error: invalid destination address - \"%s\"\n", dest);
         exit(EXIT_FAILURE);
+    }
+
+    if (VERBOSE || INTERACTIVE)
+    {
+        printf("\nStored value %d to %s\n", operand, message);
+        print_state();
     }
 }
