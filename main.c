@@ -137,6 +137,7 @@ void execute(char *command)
 
     if (!strcmp(command_args[0], "exit"))
     {
+        print_state();
         printf("Exited program successfully\n");
         exit(EXIT_SUCCESS);
     }
